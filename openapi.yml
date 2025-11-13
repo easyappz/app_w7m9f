@@ -3,270 +3,54 @@ info:
   title: Easyapp API
   version: 1.0.0
   description: API documentation for easyapp
-paths:
-  /api/hello/:
-    get:
-      operationId: api_hello_retrieve
-      description: Get a hello world message
-      tags:
-      - api
-      security:
-      - {}
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Message'
-  /api/auth/register/:
-    post:
-      operationId: api_auth_register_create
-      tags:
-      - auth
-      description: Register a new member
-      security:
-      - {}
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Register'
-      responses:
-        '201':
-          description: Member created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberPrivate'
-  /api/auth/login/:
-    post:
-      operationId: api_auth_login_create
-      tags:
-      - auth
-      description: Login and get access token
-      security:
-      - {}
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Login'
-      responses:
-        '200':
-          description: Token and member info
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TokenResponse'
-  /api/profile/me/:
-    get:
-      operationId: api_profile_me_retrieve
-      tags:
-      - profile
-      security:
-      - bearerAuth: []
-      responses:
-        '200':
-          description: Current member profile
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberPrivate'
-    patch:
-      operationId: api_profile_me_partial_update
-      tags:
-      - profile
-      security:
-      - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MemberPrivate'
-      responses:
-        '200':
-          description: Updated profile
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MemberPrivate'
-  /api/ads/:
-    get:
-      operationId: api_ads_list
-      tags:
-      - ads
-      description: List ads with filters by category, price, date, and title search
-      parameters:
-      - in: query
-        name: category
-        schema:
-          type: string
-          enum: ["Автомобили", "Недвижимость"]
-      - in: query
-        name: price_min
-        schema:
-          type: number
-          format: double
-      - in: query
-        name: price_max
-        schema:
-          type: number
-          format: double
-      - in: query
-        name: date_from
-        schema:
-          type: string
-          format: date-time
-      - in: query
-        name: date_to
-        schema:
-          type: string
-          format: date-time
-      - in: query
-        name: search
-        schema:
-          type: string
-      security:
-      - {}
-      responses:
-        '200':
-          description: List of ads
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Ad'
-    post:
-      operationId: api_ads_create
-      tags:
-      - ads
-      security:
-      - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AdCreate'
-      responses:
-        '201':
-          description: Created ad
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Ad'
-  /api/ads/{id}/:
-    get:
-      operationId: api_ads_retrieve
-      tags:
-      - ads
-      parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: integer
-      security:
-      - {}
-      responses:
-        '200':
-          description: Ad details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Ad'
-    patch:
-      operationId: api_ads_partial_update
-      tags:
-      - ads
-      parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: integer
-      security:
-      - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AdUpdate'
-      responses:
-        '200':
-          description: Updated ad
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Ad'
-    delete:
-      operationId: api_ads_destroy
-      tags:
-      - ads
-      parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: integer
-      security:
-      - bearerAuth: []
-      responses:
-        '204':
-          description: Deleted
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     Message:
       type: object
       properties:
         message:
           type: string
-          maxLength: 200
         timestamp:
           type: string
           format: date-time
-          readOnly: true
-      required:
-      - message
-      - timestamp
-    Register:
+      required: [message, timestamp]
+    MemberPublic:
       type: object
       properties:
-        username:
-          type: string
-          maxLength: 150
-        password:
-          type: string
-          minLength: 6
-          writeOnly: true
+        id:
+          type: integer
         name:
           type: string
-          maxLength: 150
         phone:
           type: string
-          maxLength: 50
-      required:
-      - username
-      - password
-      - name
-      - phone
-    Login:
+        about:
+          type: string
+        registered_at:
+          type: string
+          format: date-time
+      required: [id, name, phone, about, registered_at]
+    MemberPrivate:
       type: object
       properties:
+        id:
+          type: integer
         username:
           type: string
-        password:
+        name:
           type: string
-          writeOnly: true
-      required:
-      - username
-      - password
+        phone:
+          type: string
+        about:
+          type: string
+        registered_at:
+          type: string
+          format: date-time
+      required: [id, username, name, phone, about, registered_at]
     TokenResponse:
       type: object
       properties:
@@ -274,68 +58,19 @@ components:
           type: string
         member:
           $ref: '#/components/schemas/MemberPrivate'
-      required:
-      - token
-      - member
-    MemberPublic:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-        phone:
-          type: string
-        about:
-          type: string
-        registered_at:
-          type: string
-          format: date-time
-          readOnly: true
-      required:
-      - id
-      - name
-      - phone
-      - registered_at
-    MemberPrivate:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        username:
-          type: string
-          readOnly: true
-        name:
-          type: string
-        phone:
-          type: string
-        about:
-          type: string
-        registered_at:
-          type: string
-          format: date-time
-          readOnly: true
-      required:
-      - id
-      - username
-      - name
-      - phone
-      - registered_at
+      required: [token, member]
     Ad:
       type: object
       properties:
         id:
           type: integer
-          readOnly: true
         title:
           type: string
         description:
           type: string
         price:
           type: number
-          format: double
+          format: float
         contact_phone:
           type: string
         category:
@@ -346,66 +81,239 @@ components:
         created_at:
           type: string
           format: date-time
-          readOnly: true
         updated_at:
           type: string
           format: date-time
-          readOnly: true
-      required:
-      - id
-      - title
-      - description
-      - price
-      - contact_phone
-      - category
-      - author
-      - created_at
-      - updated_at
-    AdCreate:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        price:
-          type: number
-          format: double
-        contact_phone:
-          type: string
-        category:
-          type: string
-          enum: ["Автомобили", "Недвижимость"]
-      required:
-      - title
-      - description
-      - price
-      - contact_phone
-      - category
-    AdUpdate:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        price:
-          type: number
-          format: double
-        contact_phone:
-          type: string
-        category:
-          type: string
-          enum: ["Автомобили", "Недвижимость"]
-  securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
-    cookieAuth:
-      type: apiKey
-      in: cookie
-      name: sessionid
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+      required: [id, title, description, price, contact_phone, category, author, created_at, updated_at]
+paths:
+  /api/hello/:
+    get:
+      tags: [api]
+      description: Get a hello world message
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /api/auth/register/:
+    post:
+      tags: [auth]
+      description: Register a new member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+                phone:
+                  type: string
+              required: [username, password, name, phone]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberPrivate'
+  /api/auth/login/:
+    post:
+      tags: [auth]
+      description: Login and obtain JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required: [username, password]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+  /api/profile/me/:
+    get:
+      tags: [profile]
+      security:
+        - bearerAuth: []
+      description: Get current member profile
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberPrivate'
+    patch:
+      tags: [profile]
+      security:
+        - bearerAuth: []
+      description: Update current member profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberPrivate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberPrivate'
+  /api/ads/:
+    get:
+      tags: [ads]
+      description: List ads with filters
+      parameters:
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum: ["Автомобили", "Недвижимость"]
+        - in: query
+          name: price_min
+          schema:
+            type: number
+        - in: query
+          name: price_max
+          schema:
+            type: number
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ad'
+    post:
+      tags: [ads]
+      security:
+        - bearerAuth: []
+      description: Create new ad
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: number
+                contact_phone:
+                  type: string
+                category:
+                  type: string
+                  enum: ["Автомобили", "Недвижимость"]
+              required: [title, description, price, contact_phone, category]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ad'
+  /api/ads/{id}/:
+    get:
+      tags: [ads]
+      description: Get ad details
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ad'
+    patch:
+      tags: [ads]
+      security:
+        - bearerAuth: []
+      description: Update ad (owner only)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: number
+                contact_phone:
+                  type: string
+                category:
+                  type: string
+                  enum: ["Автомобили", "Недвижимость"]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ad'
+    delete:
+      tags: [ads]
+      security:
+        - bearerAuth: []
+      description: Delete ad (owner only)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No Content
