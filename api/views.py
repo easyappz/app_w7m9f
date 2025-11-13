@@ -115,12 +115,16 @@ class AdsListCreateView(generics.ListCreateAPIView):
         if date_from:
             try:
                 dt = datetime.fromisoformat(date_from)
+                if timezone.is_naive(dt):
+                    dt = timezone.make_aware(dt, timezone.get_current_timezone())
                 qs = qs.filter(created_at__gte=dt)
             except Exception:
                 pass
         if date_to:
             try:
                 dt = datetime.fromisoformat(date_to)
+                if timezone.is_naive(dt):
+                    dt = timezone.make_aware(dt, timezone.get_current_timezone())
                 qs = qs.filter(created_at__lte=dt)
             except Exception:
                 pass
